@@ -1,0 +1,25 @@
+{
+  "name": "employee-manager",
+  "version": "1.0.0",
+  "description": "Employee Management app that runs out of the command line",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rjhelm/employee-manager.git"
+  },
+  "author": "Ryan Helm",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rjhelm/employee-manager/issues"
+  },
+  "homepage": "https://github.com/rjhelm/employee-manager#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
+}
