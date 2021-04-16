@@ -47,8 +47,26 @@ module.exports = {
     },
     addNewRole: (departmentChoices) => [
         {
+
+        }
+    ],
+    // Update //
+    updateRole: (employees, job) => [
+        {
             
         }
-    ]
+    ],
+    updateManager: (employees) => [
 
-}
+    ],
+    // Remove //
+    deleteEmployee: (deleteEmployeeChoices) => [
+
+    ],
+    deleteDepartment: (deleteDepartmentChoices) => [
+
+    ],
+    deleteRole: (deleteRoleChoices) => [
+
+    ]
+};
