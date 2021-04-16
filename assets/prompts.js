@@ -25,6 +25,7 @@ module.exports = {
             'Exit'
         ],
     },
+    // View //
     managerPrompt: (managerChoices) => [
         {
 
@@ -35,6 +36,19 @@ module.exports = {
 
         },
     ],
-    
+    // Add //
+    addNewEmployee: (department, role, manager) => [
+        {
+
+        },
+    ],
+    addNewDepartment: {
+
+    },
+    addNewRole: (departmentChoices) => [
+        {
+            
+        }
+    ]
 
 }
