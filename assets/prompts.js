@@ -28,19 +28,38 @@ module.exports = {
     // View //
     managerPrompt: (managerChoices) => [
         {
-
+            type: 'list',
+            name: 'managerView',
+            message: 'Select a manager:',
+            choices: managerChoices,
         },
     ],
     departmentPromp: (departmentChoices) => [
         {
-
+            type: 'list',
+            name : 'departmentView',
+            message: 'Select a department:',
+            choices: departmentChoices,
         },
     ],
     // Add //
-    addEmployee: (department, role, manager) => [
+    addEmployee: (departmentList, roleArray, managerArray) => [
         {
-
+            name: 'firstName',
+            type: 'input',
+            message: 'Please enter the employees first name:'
         },
+        {
+            name: 'lastName',
+            type: 'input',
+            message: 'Please enter the employees last name:',
+        },
+        {
+            name: 'department',
+            type: 'list',
+            message: 'Select the department for this employee',
+            choices: departmentList,
+        }
     ],
     addDepartment: {
 
