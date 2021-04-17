@@ -77,7 +77,7 @@ const promptUser = () => {
 
 // Functions for viewing information //
     // View all employees //
-viewAllEmployee = () => {
+const viewAllEmployee = () => {
     let sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS departmentm r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
     FROM employee e
     LEFT JOIN role r
@@ -88,6 +88,7 @@ viewAllEmployee = () => {
     ON m.id = e.manager_id`
     connection.promise().query(sql, (err, res) => {
         if (err) throw err;
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         console.log(`                                                         ` + chalk.blueBright.bold(`ALL Employees`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -100,14 +101,17 @@ viewAllEmployee = () => {
     // View all roles //
 const viewRoles = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(`                                                         ` + chalk.blueBright.bold(`ALL Roles`));
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    const sql = `SELECT role.id, role.title, department.department_name AS department
-                    FROM role
-                    INNER JOIN department ON role.department.id = department.id`;
+    const sql = 'SELECT * FROM role';
     connection.promise().query(sql, (err, res) => {
         if(err) throw err;
-        res.forEach((role) => {console.log(role.title);});
+        res.forEach((role) => {
+			console.log(
+				`ID: ${role.id} | Title: ${role.title}\n Salary: ${role.salary}\n`,
+			);
+		});
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();
@@ -115,92 +119,120 @@ const viewRoles = () => {
     
 }
 
-    // View Employees based on manager //
-viewManager = () => {
-    connection.query(`SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
-                        ON e.role_id = r.id
-                        LEFT JOIN department d
-                        ON d.id = r.department_id
-                        LEFT JOIN employee m
-                        ON m.id = e.manager_id GROUP BY e.manager_id`, (err, res) => {
-                            if (err) throw err;
-                            const managerChoices = res
-                            .filter((mgr) => mgr.manager_id)
-                            .map(({ manager_id, manager }) => ({
-                                value: manager_id,
-                                name: manager,
-                            }));
-                            inquirer
-                            .prompt(prompt.viewManager(managerChoices))
-                            .then((answer) => {
-                                connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
-                                FROM employee e
-                                JOIN role r
-                                ON e.role_id = r.id
-                                JOIN department d
-                                ON d.id = r.department_id
-                                LEFT JOIN employee m
-                                ON m.id = e.manager_id
-                                WHERE m.id = ?`,(err, res) => {
-                                    if (err) throw err;
-                                    console.table("Employees who are directly benath this manager:", res);
-                                    console.log(err);
-
-                                    promptUser();
-                                });
-                            });
-                        });
+    // View all departments //
+const viewDepartments = () => {
+   
+    const sql = 'SELECT * FROM departments';
+    connection.promise().query(sql, (err, res) => {
+        if(err) throw err;
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(`                       ` + chalk.blueBright.bold(`All Departments:`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.table(res);
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();
+    });
+        
 }
+
+    // View employees based on department //
+const employeeByDepartment = () => {
+    const sql = `SELECT employee.first_name,
+                employee.last_name,
+                department.department_name AS department
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role_id
+                LEFT JOIN department ON role.department_id = department.id`;
+    connection.query(sql, (err, res) => {
+        if (err) throw err;
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(`                       ` + chalk.blueBright.bold(`Employees by Department:`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.table(res);
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();
+    });
+}
+
+
+
+    // View Employees based on manager //
+// const viewManager = () => {
+//     const sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
+//     ON e.role_id = r.id
+//     LEFT JOIN department d
+//     ON d.id = r.department_id
+//     LEFT JOIN employee m
+//     ON m.id = e.manager_id GROUP BY e.manager_id`;
+
+//     connection.query(sql, (err, res) => {
+//                             if (err) throw err;
+//                             const managerChoices = res
+//                             .filter((mgr) => mgr.manager_id)
+//                             .map(({ manager_id, manager }) => ({
+//                                 value: manager_id,
+//                                 name: manager,
+//                             }));
+//                             inquirer
+//                             .prompt(prompt.viewManager(managerChoices))
+//                             .then((answer) => {
+//                              const sql = `SELECT e.id, e.first_name, e.last_name, r.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
+//                                 FROM employee e
+//                                 JOIN role r
+//                                 ON e.role_id = r.id
+//                                 JOIN department d
+//                                 ON d.id = r.department_id
+//                                 LEFT JOIN employee m
+//                                 ON m.id = e.manager_id
+//                                 WHERE m.id = ?`;
+
+//                                 connection.query(sql,(err, res) => {
+//                                     if (err) throw err;
+//                                     console.table("Employees who are directly benath this manager:", res);
+//                                     console.log(err);
+
+//                                     promptUser();
+//                                 });
+//                             });
+//                         });
+// }
 
 // View employees based on department //
-employeeByDepartment = () => {
+// employeeByDepartment = () => {
 
-    connection.query(`SELECT d.id, d.name
-                        FROM employee e
-                        LEFT JOIN role r
-                        ON e.role_id = r.id
-                        LEFT JOIN department d
-                        ON d.id = r.department_id
-                        GROUP BY d.id, d.name`, (err, res) => {
-                            if (err) throw err;
-                            const departmentChoices = res.map((data) => ({
-                                value: data.id,
-                                name: data.name,
-                            }));
-                            inquirer
-                            .prompt(prompt.employeeByDepartment(departmentChoices))
-                            .then((answer) => {
-                                connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
-                                                    FROM employee e
-                                                    JOIN role r
-                                                    ON e.role_id = r.id
-                                                    JOIN department d
-                                                    ON d.id = r.department_id
-                                                    WHERE d.id = ?` ((err, res) => {
-                                                        if (err) throw err;
-                                                        figlet('View Employees By Department', (err, res) => {
-                                                            console.log(err || res);
-                                                            console.table(res);
-                                                            promptUser();
-                                                        });
-                                                    }));
-                            });
-                        });
-}
-
-// View companies departments //
-viewDepartments = () => {
-    connection.query(`SELECT * FROM department`, (err, res) => {
-        if (err) throw err;
-            res.forEach((department) => {
-                console.log(`ID: ${department.id} | ${department.name} Department`);
-            });
-        figlet('DEPARTMENT', (err, res) => {
-            if (err) throw err;
-            console.log(err || res);
-        });
-        console.log(err);
-        promptUser();
-        });
-}
-
+//     connection.query(`SELECT d.id, d.name
+//                         FROM employee e
+//                         LEFT JOIN role r
+//                         ON e.role_id = r.id
+//                         LEFT JOIN department d
+//                         ON d.id = r.department_id
+//                         GROUP BY d.id, d.name`, (err, res) => {
+//                             if (err) throw err;
+//                             const departmentChoices = res.map((data) => ({
+//                                 value: data.id,
+//                                 name: data.name,
+//                             }));
+//                             inquirer
+//                             .prompt(prompt.employeeByDepartment(departmentChoices))
+//                             .then((answer) => {
+//                                 connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
+//                                                     FROM employee e
+//                                                     JOIN role r
+//                                                     ON e.role_id = r.id
+//                                                     JOIN department d
+//                                                     ON d.id = r.department_id
+//                                                     WHERE d.id = ?` ((err, res) => {
+//                                                         if (err) throw err;
+//                                                         figlet('View Employees By Department', (err, res) => {
+//                                                             console.log(err || res);
+//                                                             console.table(res);
+//                                                             promptUser();
+//                                                         });
+//                                                     }));
+//                             });
+//                         });
+// }
