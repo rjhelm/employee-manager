@@ -134,4 +134,39 @@ viewManager = () => {
                         });
 }
 
+// View employees based on department //
+employeeByDepartment = () => {
+
+    connection.query(`SELECT d.id, d.name
+                        FROM employee e
+                        LEFT JOIN role r
+                        ON e.role_id = r.id
+                        LEFT JOIN department d
+                        ON d.id = r.department_id
+                        GROUP BY d.id, d.name`, (err, res) => {
+                            if (err) throw err;
+                            const departmentChoices = res.map((data) => ({
+                                value: data.id,
+                                name: data.name,
+                            }));
+                            inquirer
+                            .prompt(prompt.employeeByDepartment(departmentChoices))
+                            .then((answer) => {
+                                connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
+                                                    FROM employee e
+                                                    JOIN role r
+                                                    ON e.role_id = r.id
+                                                    JOIN department d
+                                                    ON d.id = r.department_id
+                                                    WHERE d.id = ?` ((err, res) => {
+                                                        if (err) throw err;
+                                                        figlet('View Employees By Department', (err, res) => {
+                                                            console.log(err || res);
+                                                            console.table(res);
+                                                            start();
+                                                        });
+                                                    }));
+                            });
+                        });
+}
 
