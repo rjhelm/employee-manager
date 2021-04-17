@@ -1,2 +1,2 @@
-USE employees;
+USE employee_db;
 

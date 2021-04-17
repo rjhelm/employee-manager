@@ -97,17 +97,40 @@ module.exports = {
         }
     ],
     // Update //
-    updateRole: (employees, job) => [
+    updateRole: (employees, jobTitle) => [
         {
-            
+            name: 'updateRole',
+            type: 'list',
+            message: 'Please select the employee for this role update:',
+            choices: employees,
+        },
+        {
+            name: 'title',
+            type: 'list',
+            message: 'Please select the new role for this employee:',
+            choices: jobTitle,
         }
     ],
     updateManager: (employees) => [
-
+        {
+            name: 'update',
+            type: 'list',
+            message: 'Please select the employee for this manager update:',
+            choices: employees,
+        },
+        {
+            name: 'manager',
+            type: 'list',
+            message: 'Please select the new manager for this employee:',
+            choices: employees,
+        },
     ],
     // Remove //
     removeEmployee: (removeEmployeeChoices) => [
-
+        {
+            type: 'list',
+            name: ''
+        }
     ],
     removeDepartment: (removeDepartmentChoices) => [
 
