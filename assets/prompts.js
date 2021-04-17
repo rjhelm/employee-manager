@@ -1,11 +1,11 @@
 module.exports = {
-    start: {
+    promptUser: {
         type: 'list',
         name: 'task',
         message: 'Choose a task:',
         choices: [
             // User options for viewing employees //
-            'View Employees',
+            'View All Employees',
             'View Managers',
             'View Employees by Department',
             'View Departments',

@@ -3,30 +3,30 @@ const table = require('console.table');
 const connect = require('./assets/connect.js');
 const prompt = require('./assets/prompts');
 const figlet = require('figlet');
-const { addNewEmployee, addNewDepartment, updateRole, updateManager, start, managerPrompt, departmentPrompt } = require('./assets/prompts');
+const chalk = require('chalk');
 const connection = require('./assets/db');
-require('console.table');
-
-// App banner when loaded in the console
-figlet('Employee Manager', (err, data) => {
-    if (err) {
-        console.log('Something went wrong..');
-        console.dir(err);
-        return;
-    }
-    console.log(data)
-});
 
 
-start();
+// Banner to start on app load //
+connection.connect((error) => {
+    if (error) throw error;
+    console.log(chalk.yellow.bold(`====================================================================================`));
+    console.log(``);
+    console.log(chalk.greenBright.bold(figlet.textSync('Employee Tracker')));
+    console.log(``);
+    console.log(`                                                          ` + chalk.greenBright.bold('Created By: Ryan Helm'));
+    console.log(``);
+    console.log(chalk.yellow.bold(`====================================================================================`));
+    promptUser();
+  });
 
 // Start the app and begin inquirer prompts
-start = () => {
-    inquirer.prompt(prompt.start)
+const promptUser = () => {
+    inquirer.prompt(prompt.promptUser)
     .then(({ task }) => {
         switch(task) {
-            case "View Employees":
-                    viewEmployee();
+            case "View All Employees":
+                    viewAllEmployee();
                     break;
             case "View Managers":
                    viewManager();
@@ -77,24 +77,35 @@ start = () => {
 
 // Functions for viewing information //
     // View all employees //
-viewEmployee = () => {
-    connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS departmentm r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
-                        FROM employee e
-                        LEFT JOIN role r
-                        ON e.role_id = r.id
-                        LEFT JOIN department d
-                        ON d.id = r.department_id
-                        LEFT JOIN employee m
-                        ON m.id = e.manager_id`, (err, res) => {
-                            if (err) throw err;
-                            figlet("EMPLOYEES:", (err, res) => {
-                                console.table(res);
-                                console.log(err);
-
-                                start();
-                            });
-
-                        });
+viewAllEmployee = () => {
+    let sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS departmentm r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee e
+    LEFT JOIN role r
+    ON e.role_id = r.id
+    LEFT JOIN department d
+    ON d.id = r.department_id
+    LEFT JOIN employee m
+    ON m.id = e.manager_id`
+    connection.promise().query(sql, (err, res) => {
+        if (err) throw err;
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(`                                                         ` + chalk.blueBright.bold(`ALL Employees`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.table(res);
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();
+    });
+}
+    // View all roles //
+const viewRoles = () => {
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(`                                                         ` + chalk.blueBright.bold(`ALL Roles`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.table(res);
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    promptUser();
 }
 
     // View Employees based on manager //
@@ -128,7 +139,7 @@ viewManager = () => {
                                     console.table("Employees who are directly benath this manager:", res);
                                     console.log(err);
 
-                                    start();
+                                    promptUser();
                                 });
                             });
                         });
@@ -163,7 +174,7 @@ employeeByDepartment = () => {
                                                         figlet('View Employees By Department', (err, res) => {
                                                             console.log(err || res);
                                                             console.table(res);
-                                                            start();
+                                                            promptUser();
                                                         });
                                                     }));
                             });
@@ -182,7 +193,7 @@ viewDepartments = () => {
             console.log(err || res);
         });
         console.log(err);
-        start();
+        promptUser();
         });
 }
 

@@ -1,14 +1,8 @@
 USE employee_db;
 
-/* department array */
-INSERT INTO department (name)
-VALUE ("Legal");
-INSERT INTO department (name)
-VALUE ("Sales");
-INSERT INTO department (name)
-VALUE ("Engineering");
-INSERT INTO department (name)
-VALUE ("Finance");
+/* employees data array */
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+Value()
 
 /* role data array */
 INSERT INTO role (title, salary, department_id)
@@ -28,7 +22,13 @@ VALUE ("Accountant", 105000, 4);
 INSERT INTO role (title, salary, department_id)
 VALUE ("Account Manager", 165000, 4);
 
-/* employees data array */
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-Value()
 
+/* department array */
+INSERT INTO department (name)
+VALUE ("Legal");
+INSERT INTO department (name)
+VALUE ("Sales");
+INSERT INTO department (name)
+VALUE ("Engineering");
+INSERT INTO department (name)
+VALUE ("Finance");
