@@ -1,14 +1,14 @@
 const inquirer = require('inquirer');
 const table = require('console.table');
-const connect = require('./assets/db');
+const connect = require('./assets/connect.js');
 const prompt = require('./assets/prompts');
 const figlet = require('figlet');
-const { addNewEmployee, addNewDepartment, updateRole, updateManager } = require('./assets/prompts');
+const { addNewEmployee, addNewDepartment, updateRole, updateManager, start } = require('./assets/prompts');
 const connection = require('./assets/db');
 require('console.table');
 
 // App banner when loaded in the console
-figlet('Employee Manager!', (err, data) => {
+figlet('Employee Manager', (err, data) => {
     if (err) {
         console.log('Something went wrong..');
         console.dir(err);
@@ -17,12 +17,12 @@ figlet('Employee Manager!', (err, data) => {
     console.log(data)
 });
 
-// Launch the app in command line for user
-initialPrompt();
+
+start();
 
 // Start the app and begin inquirer prompts
-initialPrompt = () => {
-    inquirer.prompt(prompt.initialPrompt)
+start = () => {
+    inquirer.prompt(prompt.start)
     .then(({ task }) => {
         switch(task) {
             case "View Employees":
@@ -73,6 +73,28 @@ initialPrompt = () => {
                 break;
         }
     });
+}
+
+// Functions for viewing information //
+    // View all employees //
+viewEmployee = () => {
+    connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS departmentm r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+                        FROM employee e
+                        LEFT JOIN role r
+                        ON e.role_id = r.id
+                        LEFT JOIN department d
+                        ON d.id = r.department_id
+                        LEFT JOIN employee m
+                        ON m.id = e.manager_id`, (err, res) => {
+                            if (err) throw err;
+                            figlet("EMPLOYEES:", (err, res) => {
+                                console.table(res);
+                                console.log(err);
+
+                                start();
+                            });
+
+                        });
 }
 
 
