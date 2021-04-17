@@ -170,3 +170,19 @@ employeeByDepartment = () => {
                         });
 }
 
+// View companies departments //
+viewDepartments = () => {
+    connection.query(`SELECT * FROM department`, (err, res) => {
+        if (err) throw err;
+            res.forEach((department) => {
+                console.log(`ID: ${department.id} | ${department.name} Department`);
+            });
+        figlet('DEPARTMENT', (err, res) => {
+            if (err) throw err;
+            console.log(err || res);
+        });
+        console.log(err);
+        start();
+        });
+}
+

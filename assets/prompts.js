@@ -26,7 +26,7 @@ module.exports = {
         ],
     },
     // View //
-    managerPrompt: (managerChoices) => [
+    viewManager: (managerChoices) => [
         {
             type: 'list',
             name: 'managerId',
@@ -34,7 +34,7 @@ module.exports = {
             choices: managerChoices,
         },
     ],
-    departmentPrompt: (departmentChoices) => [
+    viewDepartment: (departmentChoices) => [
         {
             type: 'list',
             name : 'departmentId',
