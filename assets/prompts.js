@@ -17,7 +17,7 @@ module.exports = {
             'Add Role',
             // User options for updating current information //
             'Update an Employees Role',
-            'Update Manager',
+            'Update an Employees Manager',
             // Options for removing current information //
             'Remove Employee',
             'Remove Department',
@@ -37,15 +37,15 @@ module.exports = {
         },
     ],
     // Add //
-    addNewEmployee: (department, role, manager) => [
+    addEmployee: (department, role, manager) => [
         {
 
         },
     ],
-    addNewDepartment: {
+    addDepartment: {
 
     },
-    addNewRole: (departmentChoices) => [
+    addRole: (departmentChoices) => [
         {
 
         }
@@ -60,13 +60,13 @@ module.exports = {
 
     ],
     // Remove //
-    deleteEmployee: (deleteEmployeeChoices) => [
+    removeEmployee: (removeEmployeeChoices) => [
 
     ],
-    deleteDepartment: (deleteDepartmentChoices) => [
+    removeDepartment: (removeDepartmentChoices) => [
 
     ],
-    deleteRole: (deleteRoleChoices) => [
+    removeRole: (removeRoleChoices) => [
 
     ]
 };
