@@ -102,10 +102,17 @@ const viewRoles = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(`                                                         ` + chalk.blueBright.bold(`ALL Roles`));
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    console.table(res);
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    promptUser();
+    const sql = `SELECT role.id, role.title, department.department_name AS department
+                    FROM role
+                    INNER JOIN department ON role.department.id = department.id`;
+    connection.promise().query(sql, (err, res) => {
+        if(err) throw err;
+        res.forEach((role) => {console.log(role.title);});
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();
+    });
+    
 }
 
     // View Employees based on manager //
