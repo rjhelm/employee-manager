@@ -3,7 +3,7 @@ const table = require('console.table');
 const connect = require('./assets/connect.js');
 const prompt = require('./assets/prompts');
 const figlet = require('figlet');
-const { addNewEmployee, addNewDepartment, updateRole, updateManager, start } = require('./assets/prompts');
+const { addNewEmployee, addNewDepartment, updateRole, updateManager, start, managerPrompt, departmentPrompt } = require('./assets/prompts');
 const connection = require('./assets/db');
 require('console.table');
 
@@ -26,16 +26,16 @@ start = () => {
     .then(({ task }) => {
         switch(task) {
             case "View Employees":
-                    vieweEmployee();
+                    viewEmployee();
                     break;
             case "View Managers":
-                    viewManager();
+                   viewManager();
                     break;
             case "View Employees by Department":
-                    viewEmployeeDepartment();
+                    employeeByDepartment();
                     break;
             case "View Departments":
-                    viewDepartment();
+                    viewDepartments();
                     break;
             case "View Roles":
                     viewRoles();
@@ -94,6 +94,43 @@ viewEmployee = () => {
                                 start();
                             });
 
+                        });
+}
+
+    // View Employees based on manager //
+viewManager = () => {
+    connection.query(`SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
+                        ON e.role_id = r.id
+                        LEFT JOIN department d
+                        ON d.id = r.department_id
+                        LEFT JOIN employee m
+                        ON m.id = e.manager_id GROUP BY e.manager_id`, (err, res) => {
+                            if (err) throw err;
+                            const managerChoices = res
+                            .filter((mgr) => mgr.manager_id)
+                            .map(({ manager_id, manager }) => ({
+                                value: manager_id,
+                                name: manager,
+                            }));
+                            inquirer
+                            .prompt(prompt.viewManager(managerChoices))
+                            .then((answer) => {
+                                connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
+                                FROM employee e
+                                JOIN role r
+                                ON e.role_id = r.id
+                                JOIN department d
+                                ON d.id = r.department_id
+                                LEFT JOIN employee m
+                                ON m.id = e.manager_id
+                                WHERE m.id = ?`,(err, res) => {
+                                    if (err) throw err;
+                                    console.table("Employees who are directly benath this manager:", res);
+                                    console.log(err);
+
+                                    start();
+                                });
+                            });
                         });
 }
 
