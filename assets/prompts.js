@@ -29,15 +29,15 @@ module.exports = {
     managerPrompt: (managerChoices) => [
         {
             type: 'list',
-            name: 'managerView',
+            name: 'managerId',
             message: 'Select a manager:',
             choices: managerChoices,
         },
     ],
-    departmentPromp: (departmentChoices) => [
+    departmentPrompt: (departmentChoices) => [
         {
             type: 'list',
-            name : 'departmentView',
+            name : 'departmentId',
             message: 'Select a department:',
             choices: departmentChoices,
         },
@@ -91,7 +91,7 @@ module.exports = {
         },
         {
             type: 'list',
-            name: 'roleDepartment',
+            name: 'departmentId',
             message: 'Please select the department for the new role:',
             choices: departmentChoices
         }
@@ -129,13 +129,25 @@ module.exports = {
     removeEmployee: (removeEmployeeChoices) => [
         {
             type: 'list',
-            name: ''
-        }
+            name: 'employeeId',
+            message: 'Please select the employee that you would like to remove:',
+            choices: removeEmployeeChoices,
+        },
     ],
     removeDepartment: (removeDepartmentChoices) => [
-
+        {
+            type: 'list',
+            name: 'departmentId',
+            message: 'Please select the department that you would like to remove:',
+            choices: removeDepartmentChoices,
+        },
     ],
     removeRole: (removeRoleChoices) => [
-
-    ]
+        {
+            type: 'list',
+            name: 'roleId',
+            message: 'Please select the role that you would like to remove:',
+            choices: removeRoleChoices,
+        },
+    ],
 };
