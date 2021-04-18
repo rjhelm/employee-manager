@@ -1,10 +1,10 @@
 const inquirer = require('inquirer');
 const table = require('console.table');
-const connect = require('./assets/connect.js');
+const connection = require('./assets/connection.js');
 const prompt = require('./assets/prompts');
 const figlet = require('figlet');
 const chalk = require('chalk');
-const connection = require('./assets/db');
+const validator = require('./assets/validator');
 
 
 // Banner to start on app load //
@@ -80,6 +80,9 @@ const promptUser = () => {
         if (choices === 'Update Employee Role') {
             updateRole();
         }
+        if (choices === 'Update Employee Manager') {
+            updateManager();
+        }
     });
 }
 
@@ -95,11 +98,11 @@ const viewEmployees = () => {
     connection.promise().query(sql, (err, res) => {
         if (err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(`                                                         ` + chalk.blueBright.bold(`ALL Employees`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.table(res);
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();
     });
@@ -107,9 +110,9 @@ const viewEmployees = () => {
     // View all roles //
 const viewRoles = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.redBright.bold(`=====================================================================================================`));
     console.log(`                                                         ` + chalk.blueBright.bold(`ALL Roles`));
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.redBright.bold(`=====================================================================================================`));
     let sql = 'SELECT * FROM role';
     connection.promise().query(sql, (err, res) => {
         if(err) throw err;
@@ -118,7 +121,7 @@ const viewRoles = () => {
 				`ID: ${role.id} | Title: ${role.title}\n Salary: ${role.salary}\n`,
 			);
 		});
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();
     });
@@ -132,11 +135,11 @@ const viewDepartments = () => {
     connection.promise().query(sql, (err, res) => {
         if(err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(`                       ` + chalk.blueBright.bold(`All Departments:`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.table(res);
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();
     });
@@ -154,11 +157,11 @@ const employeeByDepartment = () => {
     connection.query(sql, (err, res) => {
         if (err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(`                       ` + chalk.blueBright.bold(`Employees by Department:`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.table(res);
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();
     });
@@ -200,11 +203,11 @@ const employeeByManager = () => {
                                 connection.query(sql,(err, res) => {
                                     if (err) throw err;
                                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
                                     console.log(`                       ` + chalk.blueBright.bold(`Employees by Manager:`));
-                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
                                     console.table(res);
-                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
                                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
                                     promptUser();
                                 });
@@ -215,9 +218,9 @@ const employeeByManager = () => {
     // View department budget //
 const viewBudget = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.redBright.bold(`=====================================================================================================`));
     console.log(`                       ` + chalk.blueBright.bold(`Department Budgets:`));
-    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.redBright.bold(`=====================================================================================================`));
     let sql = `SELECT department_id AS id,
     department.department_name AS department,
     SUM(salary) AS budget
@@ -226,7 +229,7 @@ const viewBudget = () => {
     connection.query(sql, (err, res) => {
         if (err) throw err;
         console.table(res);
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();   
     });
@@ -343,7 +346,7 @@ const newRole = () => {
              ]).then((answer) => {
                  let userRole = answer.createRole;
                  let departmentId;
-                 response.forEach((department) => {
+                 res.forEach((department) => {
                      if (departmentData.departmentName === department.department_name) {departmentId = department.id;}
                  });
 
@@ -352,9 +355,9 @@ const newRole = () => {
                  connection.promise().query(sql, roleData, (err) => {
                      if (err) throw err;
                      console.log(chalk.greenBright.bold(`=====================================================================================================`));
-                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     console.log(chalk.redBright.bold(`=====================================================================================================`));
                      console.log(chalk.grey.bold('Your role was created succesfully!'));
-                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     console.log(chalk.redBright.bold(`=====================================================================================================`));
                      console.log(chalk.greenBright.bold(`=====================================================================================================`));
                      viewRoles();
                  });
@@ -376,9 +379,9 @@ const newDepartment = () => {
         connection.query(sql, answer.createDepartment, (err, res) => {
             if (err) throw err;
             console.log(chalk.greenBright.bold(`=====================================================================================================`));
-            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.redBright.bold(`=====================================================================================================`));
             console.log(chalk.gray.bold(answer.createDepartment + `  Department was created succesfully!`));
-            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.redBright.bold(`=====================================================================================================`));
             console.log(chalk.greenBright.bold(`=====================================================================================================`));
             viewDepartments();
         });
@@ -395,12 +398,12 @@ const updateRole = () => {
     connection.promise().query(sql, (err, res) => {
         if (err) throw err;
         let employeeArray = [];
-        response.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
+        res.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
         let sql = `SELECT role.id, role.title FROM role`;
         connection.promise().query(sql, (err, res) => {
             if (err) throw err;
             let roleArray = [];
-            response.forEach((role) => {roleArray.push(role.title);});
+            res.forEach((role) => {roleArray.push(role.title);});
             inquirer.prompt([
                 {
                     name: 'selectEmployee',
@@ -416,12 +419,12 @@ const updateRole = () => {
                 }
             ]).then((answer) => {
                 let newRole, employeeId;
-                reponse.forEach((role) => {
+                res.forEach((role) => {
                     if (answer.selectRole === role.title) {
                         newRole = role.id;
                     }
                 });
-                repose.forEach((employee) => {
+                res.forEach((employee) => {
                     if (answer.selectEmployee === `${employee.firest_name} ${employee.last_name}`) {
                         employeeId = employee.id;
                     }
@@ -430,13 +433,50 @@ const updateRole = () => {
                 connection.query(sql, [newRole, employeeId], (err) => {
                     if (err) throw err;
                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
                     console.log(chalk.gray.bold(`Your Employees Role was succesfully updated!`));
-                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
                     promptUser();
                 });
             });
         });
     });
+}
+
+    // Update the manager of an employee //
+const updateManager = () => {
+    let sql = `SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id
+                FROM employee`;
+    connection.promise().query(sql, (err, res) => {
+        let employeeArray = [];
+        res.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
+        inquirer.prompt([
+            {
+                name: 'selectEmployee',
+                type: 'list',
+                message: 'Please select the employee who has a new manager:',
+                choices: employeeArray
+            },
+            {
+                name: 'selectManager',
+                type: 'list',
+                message: 'Please select the new manager for this employee',
+                choices: employeeArray
+            }
+        ]).then((answer) => {
+            let employeeId, managerId;
+            res.forEach((employee) => {
+                if (answer.selectEmployee === (`${employee.first_name} ${employee.last_name}`)) {
+                    employeeId = employee.id;
+                }
+                if (answer.selectManager === (`${employee.first_name} ${employee.last_name}`)) {
+                    managerId = employee.id;
+                }
+            });
+            if (validator.stringSame(answer.selectEmployee, answer.selectManager)) {
+                
+            }
+        })
+    })
 }
