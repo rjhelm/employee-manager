@@ -77,6 +77,9 @@ const promptUser = () => {
         if (choices === 'Add Department') {
             newDepartment();
         }
+        if (choices === 'Update Employee Role') {
+            updateRole();
+        }
     });
 }
 
@@ -125,7 +128,7 @@ const viewRoles = () => {
     // View all departments //
 const viewDepartments = () => {
    
-    const sql = 'SELECT * FROM departments';
+    let sql = 'SELECT * FROM departments';
     connection.promise().query(sql, (err, res) => {
         if(err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -142,7 +145,7 @@ const viewDepartments = () => {
 
     // View employees based on department //
 const employeeByDepartment = () => {
-    const sql = `SELECT employee.first_name,
+    let sql = `SELECT employee.first_name,
                 employee.last_name,
                 department.department_name AS department
                 FROM employee
@@ -165,7 +168,7 @@ const employeeByDepartment = () => {
 
     // View Employees based on manager //
 const employeeByManager = () => {
-    const sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
+    let sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
     ON e.role_id = r.id
     LEFT JOIN department d
     ON d.id = r.department_id
@@ -174,7 +177,7 @@ const employeeByManager = () => {
 
     connection.query(sql, (err, res) => {
                             if (err) throw err;
-                            const managerChoices = res
+                            let managerChoice = res
                             .filter((mgr) => mgr.manager_id)
                             .map(({ manager_id, manager }) => ({
                                 value: manager_id,
@@ -215,7 +218,7 @@ const viewBudget = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(`                       ` + chalk.blueBright.bold(`Department Budgets:`));
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    const sql = `SELECT department_id AS id,
+    let sql = `SELECT department_id AS id,
     department.department_name AS department,
     SUM(salary) AS budget
     FROM role
@@ -230,6 +233,7 @@ const viewBudget = () => {
 }
 
     // FUNCTIONS FOR ADDING INFORMATION //
+    // Add a new employee //
 const newEmployee = () => {
     inquirer.prompt([
         {
@@ -259,11 +263,11 @@ const newEmployee = () => {
             }
         }
     ]).then(answer => {
-        const fullName = [answer.firstName, answer.lastName]
-        const addRole = `SELECT role.id, role.title FROM role`;
+        let fullName = [answer.firstName, answer.lastName]
+        let addRole = `SELECT role.id, role.title FROM role`;
         connection.promise().query(addRole, (err, data) => {
             if (err) throw err;
-            const roles = data.map(({ id, title })=> ({ name: title, value: id }));
+            let roles = data.map(({ id, title })=> ({ name: title, value: id }));
             inquirer.prompt([
                 {
                     type: 'list',
@@ -272,12 +276,12 @@ const newEmployee = () => {
                     choices: roles
                 }
             ]).then(roleChoice => {
-                const role = roleChoice.role;
+                let role = roleChoice.role;
                 fullName.push(role);
-                const addManager = `SELECT * FROM employee`;
+                let addManager = `SELECT * FROM employee`;
                 connection.promise().query(addManager, (err, data) => {
                     if (err) throw err;
-                    const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' '+ last_name, value: id }));
+                    let managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' '+ last_name, value: id }));
                     inquirer.prompt([
                         {
                             type: 'list',
@@ -286,9 +290,9 @@ const newEmployee = () => {
                             choices: managers
                         }
                     ]).then(managerChoice => {
-                        const manager = managerChoice.manager;
+                        let manager = managerChoice.manager;
                         fullName.push(manager);
-                        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                        let sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
                                     VALUES (?,?,?,?)`;
                         connection.query(sql, (err, res) => {
                             if (err) throw err;
@@ -304,7 +308,7 @@ const newEmployee = () => {
 
     // Add a new job role //
 const newRole = () => {
-    const sql = `SELECT * FROM department`
+    let sql = `SELECT * FROM department`
     connection.promise().query(sql, (err, res) => {
         if (err) throw err;
         let departmentArray = [];
@@ -381,3 +385,58 @@ const newDepartment = () => {
     });
 }
 
+    // FUNCTIONS FOR UPDATING INFORMATION //
+    // Update the role of an employee //
+const updateRole = () => {
+    let sql = `SELECT employee.id, employee.first_name, employee.last_name, role_id AS 'role_id'
+                FROM employee, role, department
+                WHERE department.id = role.department_id
+                AND role.id = employee.role_id`;
+    connection.promise().query(sql, (err, res) => {
+        if (err) throw err;
+        let employeeArray = [];
+        response.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
+        let sql = `SELECT role.id, role.title FROM role`;
+        connection.promise().query(sql, (err, res) => {
+            if (err) throw err;
+            let roleArray = [];
+            response.forEach((role) => {roleArray.push(role.title);});
+            inquirer.prompt([
+                {
+                    name: 'selectEmployee',
+                    type: 'list',
+                    message: 'Please select the employee who has a new role:',
+                    choices: employeeArray
+                },
+                {
+                    name: 'selectRole',
+                    type: 'list',
+                    message: 'Please select the new role:',
+                    choices: roleArray
+                }
+            ]).then((answer) => {
+                let newRole, employeeId;
+                reponse.forEach((role) => {
+                    if (answer.selectRole === role.title) {
+                        newRole = role.id;
+                    }
+                });
+                repose.forEach((employee) => {
+                    if (answer.selectEmployee === `${employee.firest_name} ${employee.last_name}`) {
+                        employeeId = employee.id;
+                    }
+                });
+                let sql = `UPDATE employee SET employee.role_id = ? WHERE employee.id = ?`;
+                connection.query(sql, [newRole, employeeId], (err) => {
+                    if (err) throw err;
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.gray.bold(`Your Employees Role was succesfully updated!`));
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    promptUser();
+                });
+            });
+        });
+    });
+}
