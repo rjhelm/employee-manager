@@ -358,3 +358,26 @@ const newRole = () => {
          }
     });
 }
+
+    // Add a new department //
+const newDepartment = () => {
+    inquirer.prompt([
+        {
+            name: 'createDepartment',
+            type: 'input',
+            message: 'Please enter the name of the new department:',
+        }
+    ]).then((answer) => {
+        let sql = `INSERT INTO department (department_name) VALUES (?)`;
+        connection.query(sql, answer.createDepartment, (err, res) => {
+            if (err) throw err;
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.gray.bold(answer.createDepartment + `  Department was created succesfully!`));
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            viewDepartments();
+        });
+    });
+}
+
