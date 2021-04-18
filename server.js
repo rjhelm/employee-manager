@@ -36,11 +36,11 @@ const promptUser = () => {
                 'View All Employees By Department',
                 'View All Employees by Manager',
                 'View Department Budgets',
-                'Update Employee Role',
-                'Update Employee Manager',
                 'Add Employee',
                 'Add Role',
                 'Add Department',
+                'Update Employee Role',
+                'Update Employee Manager',
                 'Remove Employee',
                 'Remove Role',
                 'Remove Department',
@@ -68,10 +68,14 @@ const promptUser = () => {
         if (choices === 'View Department Budget') {
             viewBudget();
         }
+        if (choices === 'Add Employee') {
+            newEmployee();
+        }
     })
 }
 
-// Functions for viewing information //
+// FUNCTIONS FOR VIEWING INFORMATION //
+
     // View all employees //
 const viewEmployees = () => {
     let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department role.salary, 
@@ -172,7 +176,7 @@ const employeeByManager = () => {
                             }));
 
                             inquirer
-                            .prompt(prompt.viewManager(managerChoices))
+                            .prompt(prompt.viewManager(managerChoice))
                             .then((answer) => {
                              let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
                                 FROM employee 
@@ -216,5 +220,78 @@ const viewBudget = () => {
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         promptUser();   
+    });
+}
+
+    // FUNCTIONS FOR ADDING INFORMATION //
+const newEmployee = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: 'Please enter the employees first name:',
+            validate: addFirstName => {
+                if (addFirstName) {
+                    return true;
+                } else {
+                    console.log('Employee must have a first name, try again');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: 'Please enter the employees last name:',
+            validate: addLastName => {
+                if (addLastName) {
+                    return true;
+                } else {
+                    console.log('Employee must have a last name, try again');
+                    return false;
+                }
+            }
+        }
+    ]).then(answer => {
+        const fullName = [answer.firstName, answer.lastName]
+        const addRole = `SELECT role.id, role.title FROM role`;
+        connection.promise().query(addRole, (err, data) => {
+            if (err) throw err;
+            const roles = data.map(({ id, title })=> ({ name: title, value: id }));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Please select the employees role:',
+                    choices: roles
+                }
+            ]).then(roleChoice => {
+                const role = roleChoice.role;
+                fullName.push(role);
+                const addManager = `SELECT * FROM employee`;
+                connection.promise().query(addManager, (err, data) => {
+                    if (err) throw err;
+                    const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' '+ last_name, value: id }));
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: 'Please select the employees manager:',
+                            choices: managers
+                        }
+                    ]).then(managerChoice => {
+                        const manager = managerChoice.manager;
+                        fullName.push(manager);
+                        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                                    VALUES (?,?,?,?)`;
+                        connection.query(sql, (err, res) => {
+                            if (err) throw err;
+                            console.log('This employee has been added to the database!');
+                            viewEmployees();
+                        });
+                    });
+                });
+            });
+        });
     });
 }
