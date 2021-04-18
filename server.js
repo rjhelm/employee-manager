@@ -71,7 +71,13 @@ const promptUser = () => {
         if (choices === 'Add Employee') {
             newEmployee();
         }
-    })
+        if (choices === 'Add Role') {
+            newRole();
+        }
+        if (choices === 'Add Department') {
+            newDepartment();
+        }
+    });
 }
 
 // FUNCTIONS FOR VIEWING INFORMATION //
@@ -293,5 +299,62 @@ const newEmployee = () => {
                 });
             });
         });
+    });
+}
+
+    // Add a new job role //
+const newRole = () => {
+    const sql = `SELECT * FROM department`
+    connection.promise().query(sql, (err, res) => {
+        if (err) throw err;
+        let departmentArray = [];
+        res.forEach((department) => {departmentArray.push(department.department_name);});
+         departmentArray.push('Add Department');
+         inquirer.prompt([
+             {
+                 name: 'departmentName',
+                 type: 'list',
+                 message: 'Please select a department for this role:',
+                 choices: departmentArray
+             }
+         ]).then((answer) => {
+             if (answer.departmentName === 'Add Department') {
+                 this.newDepartment();
+             } else {
+                 continueRole(answer);
+             }
+         });
+         const continueRole = (departmentData) => {
+             inquirer.prompt([
+                 {
+                    name: 'createRole',
+                    type: 'input',
+                    message: 'Please enter the name of this role:',
+                 },
+                 {
+                     name: 'salary',
+                     type: 'input',
+                     message: 'Please enter the salary for this role:',
+                 }
+             ]).then((answer) => {
+                 let userRole = answer.createRole;
+                 let departmentId;
+                 response.forEach((department) => {
+                     if (departmentData.departmentName === department.department_name) {departmentId = department.id;}
+                 });
+
+                 let sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+                 let roleData = [userRole, answer.salary, departmentId];
+                 connection.promise().query(sql, roleData, (err) => {
+                     if (err) throw err;
+                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     console.log(chalk.grey.bold('Your role was created succesfully!'));
+                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                     viewRoles();
+                 });
+             });
+         }
     });
 }
