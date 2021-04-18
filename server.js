@@ -5,6 +5,7 @@ const prompt = require('./assets/prompts');
 const figlet = require('figlet');
 const chalk = require('chalk');
 const validator = require('./assets/validator');
+const { registerPrompt } = require('inquirer');
 
 
 // Banner to start on app load //
@@ -85,6 +86,9 @@ const promptUser = () => {
         }
         if (choices === 'Remove Employee') {
             deleteEmployee();
+        }
+        if (choices === 'Remove Role') {
+            deleteRole();
         }
     });
 }
@@ -536,3 +540,38 @@ const deleteEmployee = () => {
         });
     });
 }
+
+    // Delete a role //
+    const deleteRole = () => {
+        let sql = `SELECT role.id, role.title FROM role`;
+        connection.promise().query(sql, (err, res) => {
+            if (err) throw err;
+            let roleArray = [];
+            res.forEach((role) => {roleArray.push(role.title);});
+            inquirer.prompt([
+                {
+                    name: 'selectRole',
+                    type: 'list',
+                    message: 'Please select the role that you would like to remove:',
+                    choices: roleArray
+                }
+            ]).then((answer) => {
+                let roleId;
+                response.forEach((role) => {
+                if (answer.selectRole === role.title) {
+                    roleId = role.id;
+                }
+            });
+                let sql = `DELETE FROM role WHERE role.id = ?`;
+                connection.promise().query(sql, [roleId], (err) => {
+                    if (err) throw err;
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
+                    console.log(chalk.blueBright.bold(`Your role has been removed from the database`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    viewRoles();
+                });
+            });
+        });
+    }
