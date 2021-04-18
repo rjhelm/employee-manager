@@ -83,6 +83,9 @@ const promptUser = () => {
         if (choices === 'Update Employee Manager') {
             updateManager();
         }
+        if (choices === 'Remove Employee') {
+            deleteEmployee();
+        }
     });
 }
 
@@ -493,6 +496,43 @@ const updateManager = () => {
                     promptUser();
                 });
             }
+        });
+    });
+}
+
+
+    // FUNCTIONS TO REMOVE INFORMATION //
+    // remove an employee //
+const deleteEmployee = () => {
+    let sql = `SELECT employee.id, employee.first_name, employee.last_name, FROM employee`;
+    connection.promise().query(sql, (err, res) => {
+        if (err) throw err;
+        let employeeArray = [];
+        res.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
+        inquirer.prompt([
+            {
+                name: 'selectEmployee',
+                type: 'list',
+                message: 'Please select the employee that you would like to remove:',
+                choices: employeeArray
+            }
+        ]).then((answer) =>{
+            let employeeId;
+            res.forEach((employee) => {
+                if (answer.selectEmployee === `${employee.first_name} ${employee.last_name}`) {
+                    employeeId = employee.id;
+                }
+            });
+            let sql = `DELETE FROM employee WHERE employee.id = ?`;
+            connection.query(sql, (err, res) => {
+                if (err) throw err;
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.blueBright.bold(`Your emplpoyee was succesfully removed from the database`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                viewEmployees();
+            });
         });
     });
 }
