@@ -78,14 +78,11 @@ const promptUser = () => {
 // Functions for viewing information //
     // View all employees //
 const viewAllEmployee = () => {
-    let sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS departmentm r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
-    FROM employee e
-    LEFT JOIN role r
-    ON e.role_id = r.id
-    LEFT JOIN department d
-    ON d.id = r.department_id
-    LEFT JOIN employee m
-    ON m.id = e.manager_id`
+    let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department role.salary, 
+    FROM employee, role, department
+    WHERE department id = role.department_id
+    AND role.id = employee.role_id
+    ORDER BY employee.id ASC`;
     connection.promise().query(sql, (err, res) => {
         if (err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -104,7 +101,7 @@ const viewRoles = () => {
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(`                                                         ` + chalk.blueBright.bold(`ALL Roles`));
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
-    const sql = 'SELECT * FROM role';
+    let sql = 'SELECT * FROM role';
     connection.promise().query(sql, (err, res) => {
         if(err) throw err;
         res.forEach((role) => {
@@ -161,45 +158,50 @@ const employeeByDepartment = () => {
 
 
     // View Employees based on manager //
-// const viewManager = () => {
-//     const sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
-//     ON e.role_id = r.id
-//     LEFT JOIN department d
-//     ON d.id = r.department_id
-//     LEFT JOIN employee m
-//     ON m.id = e.manager_id GROUP BY e.manager_id`;
+const viewManager = () => {
+    const sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
+    ON e.role_id = r.id
+    LEFT JOIN department d
+    ON d.id = r.department_id
+    LEFT JOIN employee m
+    ON m.id = e.manager_id GROUP BY e.manager_id`;
 
-//     connection.query(sql, (err, res) => {
-//                             if (err) throw err;
-//                             const managerChoices = res
-//                             .filter((mgr) => mgr.manager_id)
-//                             .map(({ manager_id, manager }) => ({
-//                                 value: manager_id,
-//                                 name: manager,
-//                             }));
-//                             inquirer
-//                             .prompt(prompt.viewManager(managerChoices))
-//                             .then((answer) => {
-//                              const sql = `SELECT e.id, e.first_name, e.last_name, r.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
-//                                 FROM employee e
-//                                 JOIN role r
-//                                 ON e.role_id = r.id
-//                                 JOIN department d
-//                                 ON d.id = r.department_id
-//                                 LEFT JOIN employee m
-//                                 ON m.id = e.manager_id
-//                                 WHERE m.id = ?`;
+    connection.query(sql, (err, res) => {
+                            if (err) throw err;
+                            const managerChoices = res
+                            .filter((mgr) => mgr.manager_id)
+                            .map(({ manager_id, manager }) => ({
+                                value: manager_id,
+                                name: manager,
+                            }));
 
-//                                 connection.query(sql,(err, res) => {
-//                                     if (err) throw err;
-//                                     console.table("Employees who are directly benath this manager:", res);
-//                                     console.log(err);
+                            inquirer
+                            .prompt(prompt.viewManager(managerChoices))
+                            .then((answer) => {
+                             let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
+                                FROM employee 
+                                JOIN role 
+                                ON employee.role_id = role.id
+                                JOIN department 
+                                ON department.id = role.department_id
+                                LEFT JOIN employee 
+                                ON manager.id = employee.manager_id
+                                WHERE manager.id = ?`;
 
-//                                     promptUser();
-//                                 });
-//                             });
-//                         });
-// }
+                                connection.query(sql,(err, res) => {
+                                    if (err) throw err;
+                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(`                       ` + chalk.blueBright.bold(`Employees by Manager:`));
+                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.table(res);
+                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                                    promptUser();
+                                });
+                            });
+                        });
+}
 
 // View employees based on department //
 // employeeByDepartment = () => {
