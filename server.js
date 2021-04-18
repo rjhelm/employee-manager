@@ -475,8 +475,24 @@ const updateManager = () => {
                 }
             });
             if (validator.stringSame(answer.selectEmployee, answer.selectManager)) {
-                
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.redBright.bold(`The employee you chose is invalid, please try again!`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                promptUser();
+            } else {
+                let sql = `UPDATE employee SET employee.manager_id = ? WHERE employee.id = ?`;
+                connection.query(sql, [managerId, employeeId], (err) => {
+                    if (err) throw err;
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
+                    console.log(chalk.blueBright.bold(`This employees manager has been updated`));
+                    console.log(chalk.redBright.bold(`=====================================================================================================`));
+                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                    promptUser();
+                });
             }
-        })
-    })
+        });
+    });
 }
