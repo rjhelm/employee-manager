@@ -10,74 +10,70 @@ const connection = require('./assets/db');
 // Banner to start on app load //
 connection.connect((error) => {
     if (error) throw error;
-    console.log(chalk.yellow.bold(`====================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(``);
     console.log(chalk.greenBright.bold(figlet.textSync('Employee Tracker')));
     console.log(``);
-    console.log(`                                                          ` + chalk.greenBright.bold('Created By: Ryan Helm'));
+    console.log(`                                                          ` + chalk.blueBright.bold('Created By: Ryan Helm'));
     console.log(``);
-    console.log(chalk.yellow.bold(`====================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
     promptUser();
   });
 
 // Start the app and begin inquirer prompts
 const promptUser = () => {
-    inquirer.prompt(prompt.promptUser)
-    .then(({ task }) => {
-        switch(task) {
-            case "View All Employees":
-                    viewAllEmployee();
-                    break;
-            case "View Managers":
-                   viewManager();
-                    break;
-            case "View Employees by Department":
-                    employeeByDepartment();
-                    break;
-            case "View Departments":
-                    viewDepartments();
-                    break;
-            case "View Roles":
-                    viewRoles();
-                    break;
-            case "View Department Budget":
-                    viewBudget();
-                    break;
-            case "'Add Employee'":
-                    addEmployee();
-                    break;
-            case "Add Department":
-                    addDepartment();
-                    break;
-            case "Add Role":
-                    addRole();
-                    break;
-            case "Update an Employees Role":
-                    updateRole();
-                    break;
-            case "Update an Employees Manager":
-                    updateManager();
-                    break;
-            case "Remove Employee":
-                    removeEmployee();
-                    break;
-            case "Remove Department":
-                    removeDepartment();
-                    break;
-            case "Remove Role":
-                    removeRole();
-                    break;
-            case "Exit":
-                console.log('Thank you for using Employee Manager!');
-                connection.end();
-                break;
+    inquirer.prompt([
+        {
+            name: 'choices',
+            type: 'list',
+            message: 'What would you like to do? Select an option:',
+            choices: [
+                'View All Employees',
+                'View All Roles',
+                'View All Departments',
+                'View All Employees By Department',
+                'View All Employees by Manager',
+                'View Department Budgets',
+                'Update Employee Role',
+                'Update Employee Manager',
+                'Add Employee',
+                'Add Role',
+                'Add Department',
+                'Remove Employee',
+                'Remove Role',
+                'Remove Department',
+                'Exit'
+            ]
         }
-    });
+    ]).then((answers) => {
+        const {choices} = answers;
+
+        if (choices === 'View All Employees') {
+            viewEmployees();
+        }
+        if (choices === 'View All Roles') {
+            viewRoles();
+        }
+        if (choices === 'View All Departments') {
+            viewDepartments();
+        }
+        if (choices === 'View Employees By Department') {
+            employeeByDepartment();
+        }
+        if (choices === 'View Employees By Manager') {
+            employeeByManager();
+        }
+        if (choices === 'View Department Budget') {
+            viewBudget();
+        }
+    })
 }
 
 // Functions for viewing information //
     // View all employees //
-const viewAllEmployee = () => {
+const viewEmployees = () => {
     let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department role.salary, 
     FROM employee, role, department
     WHERE department id = role.department_id
@@ -158,7 +154,7 @@ const employeeByDepartment = () => {
 
 
     // View Employees based on manager //
-const viewManager = () => {
+const employeeByManager = () => {
     const sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
     ON e.role_id = r.id
     LEFT JOIN department d
@@ -203,38 +199,22 @@ const viewManager = () => {
                         });
 }
 
-// View employees based on department //
-// employeeByDepartment = () => {
-
-//     connection.query(`SELECT d.id, d.name
-//                         FROM employee e
-//                         LEFT JOIN role r
-//                         ON e.role_id = r.id
-//                         LEFT JOIN department d
-//                         ON d.id = r.department_id
-//                         GROUP BY d.id, d.name`, (err, res) => {
-//                             if (err) throw err;
-//                             const departmentChoices = res.map((data) => ({
-//                                 value: data.id,
-//                                 name: data.name,
-//                             }));
-//                             inquirer
-//                             .prompt(prompt.employeeByDepartment(departmentChoices))
-//                             .then((answer) => {
-//                                 connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
-//                                                     FROM employee e
-//                                                     JOIN role r
-//                                                     ON e.role_id = r.id
-//                                                     JOIN department d
-//                                                     ON d.id = r.department_id
-//                                                     WHERE d.id = ?` ((err, res) => {
-//                                                         if (err) throw err;
-//                                                         figlet('View Employees By Department', (err, res) => {
-//                                                             console.log(err || res);
-//                                                             console.table(res);
-//                                                             promptUser();
-//                                                         });
-//                                                     }));
-//                             });
-//                         });
-// }
+    // View department budget //
+const viewBudget = () => {
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    console.log(`                       ` + chalk.blueBright.bold(`Department Budgets:`));
+    console.log(chalk.greenBright.bold(`=====================================================================================================`));
+    const sql = `SELECT department_id AS id,
+    department.department_name AS department,
+    SUM(salary) AS budget
+    FROM role
+    INNER JOIN department ON role.department_id = department.id GROUP BY role.department_id`;
+    connection.query(sql, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();   
+    });
+}
