@@ -92,6 +92,9 @@ const promptUser = () => {
         if (choices === 'Remove Department') {
             deleteDepartment();
         }
+        if (choices = 'Exit') {
+            connection.end();
+        }
     });
 }
 
@@ -145,7 +148,7 @@ const viewRoles = () => {
     // View all departments //
 const viewDepartments = () => {
    
-    let sql = 'SELECT * FROM departments';
+    let sql = 'SELECT * FROM department';
     connection.query(sql, (err, res) => {
         if(err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -162,12 +165,12 @@ const viewDepartments = () => {
 
     // View employees based on department //
 const employeeByDepartment = () => {
-    let sql = `SELECT employee.first_name,
-                employee.last_name,
-                department.department_name AS department
-                FROM employee
-                LEFT JOIN role ON employee.role_id = role_id
-                LEFT JOIN department ON role.department_id = department.id`;
+    let sql =     `SELECT employee.first_name, 
+    employee.last_name, 
+    department.department_name AS department
+    FROM employee 
+    LEFT JOIN role ON employee.role_id = role.id 
+    LEFT JOIN department ON role.department_id = department.id`;
     connection.query(sql, (err, res) => {
         if (err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -180,8 +183,6 @@ const employeeByDepartment = () => {
         promptUser();
     });
 }
-
-
 
     // View Employees based on manager //
 const employeeByManager = () => {
