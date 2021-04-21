@@ -3,7 +3,6 @@ const table = require('console.table');
 const connection = require('./assets/connection.js');
 const figlet = require('figlet');
 const chalk = require('chalk');
-const validator = require('./assets/validate');
 const validate = require('./assets/validate');
 // const { registerPrompt } = require('inquirer');
 
@@ -35,7 +34,7 @@ const promptUser = () => {
                 'View All Roles',
                 'View All Departments',
                 'View All Employees By Department',
-                'View All Employees by Manager',
+                // 'View All Employees by Manager',
                 'View Department Budgets',
                 'Add Employee',
                 'Add Role',
@@ -61,7 +60,8 @@ const promptUser = () => {
             viewDepartments();
         }
         if (choices === 'View Employees By Department') {
-            employeeByDepartment();
+            employees
+            ByDepartment();
         }
         // if (choices === 'View Employees By Manager') {
         //     employeeByManager();
@@ -165,8 +165,8 @@ const viewDepartments = () => {
 }
 
     // View employees based on department //
-const employeeByDepartment = () => {
-    let sql =     `SELECT employee.first_name, 
+const employeesByDepartment = () => {
+    let sql = `SELECT employee.first_name, 
     employee.last_name, 
     department.department_name AS department
     FROM employee 
@@ -235,19 +235,19 @@ const viewBudget = () => {
     console.log(chalk.redBright.bold(`=====================================================================================================`));
     console.log(`                       ` + chalk.blueBright.bold(`Department Budgets:`));
     console.log(chalk.redBright.bold(`=====================================================================================================`));
-    let sql = `SELECT department_id AS id,
-    department.department_name AS department,
-    SUM(salary) AS budget
-    FROM role
-    INNER JOIN department ON role.department_id = department.id GROUP BY role.department_id`;
+    let sql =     `SELECT department_id AS id, 
+                    department.department_name AS department,
+                    SUM(salary) AS budget
+                    FROM  role  
+                    INNER JOIN department ON role.department_id = department.id GROUP BY  role.department_id`;
     connection.query(sql, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        console.log(chalk.redBright.bold(`=====================================================================================================`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        promptUser();   
+      if (err) throw err;
+      console.table(res);
+      console.log(chalk.redBright.bold(`=====================================================================================================`));
+      console.log(chalk.greenBright.bold(`=====================================================================================================`));
+        promptUser();
     });
-}
+  };
 
     // FUNCTIONS FOR ADDING INFORMATION //
     // Add a new employee //
@@ -309,9 +309,9 @@ const newEmployee = () => {
                     ]).then(managerChoice => {
                         let manager = managerChoice.manager;
                         fullName.push(manager);
-                        let sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-                                    VALUES (?,?,?,?)`;
-                        connection.query(sql, (err, res) => {
+                        const sql =   `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                                  VALUES (?, ?, ?, ?)`;
+                        connection.query(sql, fullName, (err) => {
                             if (err) throw err;
                             console.log('This employee has been added to the database!');
                             viewEmployees();
@@ -364,7 +364,7 @@ const newRole = () => {
                      if (departmentData.departmentName === department.department_name) {departmentId = department.id;}
                  });
 
-                 let sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+                 let sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
                  let roleData = [userRole, answer.salary, departmentId];
                  connection.query(sql, roleData, (err) => {
                      if (err) throw err;
