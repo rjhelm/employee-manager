@@ -90,6 +90,9 @@ const promptUser = () => {
         if (choices === 'Remove Role') {
             deleteRole();
         }
+        if (choices === 'Remove Department') {
+            deleteDepartment();
+        }
     });
 }
 
@@ -575,3 +578,39 @@ const deleteEmployee = () => {
             });
         });
     }
+
+    // Delete a department //
+const deleteDepartment = () => {
+    let sql = `SELECT department.id, department.department_name FROM department`;
+    connection.promise().query(sql, (err, res) => {
+        if (err) throw err;
+        let departmentArray = [];
+        res.forEach((department) => {departmentArray.push(department.department_name);});
+        inquirer.prompt([
+            {
+                name: 'selectDepartment',
+                type: 'list',
+                message: 'Please select the department you would like to remove:',
+                choices: departmentArray
+            }
+        ]).then((answer) => {
+   
+        let departmentId;
+        res.forEach((department) => {
+            if (answer.selectDepartment === department.department_name) {
+                departmentId = department.id;
+            }
+        });
+            let sql = `DELETE FROM department WHERE department.id`;
+            conection.promise().query(sql, [departmentId], (err) => {
+                if (err) throw err;
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.blueBright.bold(`Your department has been removed from the database`));
+                console.log(chalk.redBright.bold(`=====================================================================================================`));
+                console.log(chalk.greenBright.bold(`=====================================================================================================`));
+                viewDepartments();
+            });
+        });
+    });
+}
