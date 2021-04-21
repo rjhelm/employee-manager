@@ -8,9 +8,9 @@ const validate = {
         if (validator.isDecimal(num)) return true;
         return 'Enter valid salary number';
     },
-    stringSame(str1, str2) {
+    isSame(str1, str2) {
         if (str1 === str2) return true;
     }
 }
 
-module.exports = validator;
+module.exports = validate;

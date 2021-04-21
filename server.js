@@ -3,7 +3,8 @@ const table = require('console.table');
 const connection = require('./assets/connection.js');
 const figlet = require('figlet');
 const chalk = require('chalk');
-const validator = require('./assets/validator');
+const validator = require('./assets/validate');
+const validate = require('./assets/validate');
 // const { registerPrompt } = require('inquirer');
 
 
@@ -15,7 +16,7 @@ connection.connect((err) => {
     console.log(``);
     console.log(chalk.greenBright.bold(figlet.textSync('Employee Tracker')));
     console.log(``);
-    console.log(`                                                          ` + chalk.blueBright.bold('Created By: Ryan Helm'));
+    console.log(`                                      ` + chalk.blueBright.bold('Created By: Ryan Helm'));
     console.log(``);
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
     console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -28,7 +29,7 @@ const promptUser = () => {
         {
             name: 'choices',
             type: 'list',
-            message: 'What would you like to do? Select an option:',
+            message: 'Select an option:',
             choices: [
                 'View All Employees',
                 'View All Roles',
@@ -62,9 +63,9 @@ const promptUser = () => {
         if (choices === 'View Employees By Department') {
             employeeByDepartment();
         }
-        if (choices === 'View Employees By Manager') {
-            employeeByManager();
-        }
+        // if (choices === 'View Employees By Manager') {
+        //     employeeByManager();
+        // }
         if (choices === 'View Department Budget') {
             viewBudget();
         }
@@ -92,7 +93,7 @@ const promptUser = () => {
         if (choices === 'Remove Department') {
             deleteDepartment();
         }
-        if (choices = 'Exit') {
+        if (choices === 'Exit') {
             connection.end();
         }
     });
@@ -185,48 +186,48 @@ const employeeByDepartment = () => {
 }
 
     // View Employees based on manager //
-const employeeByManager = () => {
-    let sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
-    ON e.role_id = r.id
-    LEFT JOIN department d
-    ON d.id = r.department_id
-    LEFT JOIN employee m
-    ON m.id = e.manager_id GROUP BY e.manager_id`;
+// const employeeByManager = () => {
+//     let sql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN role r
+//     ON e.role_id = r.id
+//     LEFT JOIN department d
+//     ON d.id = r.department_id
+//     LEFT JOIN employee m
+//     ON m.id = e.manager_id GROUP BY e.manager_id`;
 
-    connection.query(sql, (err, res) => {
-                            if (err) throw err;
-                            let managerChoice = res
-                            .filter((mgr) => mgr.manager_id)
-                            .map(({ manager_id, manager }) => ({
-                                value: manager_id,
-                                name: manager,
-                            }));
+//     connection.query(sql, (err, res) => {
+//                             if (err) throw err;
+//                             let managerChoice = res
+//                             .filter((mgr) => mgr.manager_id)
+//                             .map(({ manager_id, manager }) => ({
+//                                 value: manager_id,
+//                                 name: manager,
+//                             }));
 
-                            inquirer.prompt(viewManager(managerChoice)).then((answer) => {
-                             let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
-                                FROM employee 
-                                JOIN role 
-                                ON employee.role_id = role.id
-                                JOIN department 
-                                ON department.id = role.department_id
-                                LEFT JOIN employee 
-                                ON manager.id = employee.manager_id
-                                WHERE manager.id = ?`;
+//                             inquirer.prompt(viewManager(managerChoice)).then((answer) => {
+//                              let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, CONCAT(m.first_name, ' ', m.last_name) AS manager
+//                                 FROM employee 
+//                                 JOIN role 
+//                                 ON employee.role_id = role.id
+//                                 JOIN department 
+//                                 ON department.id = role.department_id
+//                                 LEFT JOIN employee 
+//                                 ON manager.id = employee.manager_id
+//                                 WHERE manager.id = ?`;
 
-                                connection.query(sql, (err, res) => {
-                                    if (err) throw err;
-                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
-                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
-                                    console.log(`                       ` + chalk.blueBright.bold(`Employees by Manager:`));
-                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
-                                    console.table(res);
-                                    console.log(chalk.redBright.bold(`=====================================================================================================`));
-                                    console.log(chalk.greenBright.bold(`=====================================================================================================`));
-                                    promptUser();
-                                });
-                            });
-                        });
-}
+//                                 connection.query(sql, (err, res) => {
+//                                     if (err) throw err;
+//                                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+//                                     console.log(chalk.redBright.bold(`=====================================================================================================`));
+//                                     console.log(`                       ` + chalk.blueBright.bold(`Employees by Manager:`));
+//                                     console.log(chalk.redBright.bold(`=====================================================================================================`));
+//                                     console.table(res);
+//                                     console.log(chalk.redBright.bold(`=====================================================================================================`));
+//                                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
+//                                     promptUser();
+//                                 });
+//                             });
+//                         });
+// }
 
     // View department budget //
 const viewBudget = () => {
@@ -462,6 +463,7 @@ const updateManager = () => {
     let sql = `SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id
                 FROM employee`;
     connection.query(sql, (err, res) => {
+        if (err) throw err;
         let employeeArray = [];
         res.forEach((employee) => {employeeArray.push(`${employee.first_name} ${employee.last_name}`);});
         inquirer.prompt([
@@ -487,7 +489,7 @@ const updateManager = () => {
                     managerId = employee.id;
                 }
             });
-            if (validator.stringSame(answer.selectEmployee, answer.selectManager)) {
+            if (validate.isSame(answer.selectEmployee, answer.selectManager)) {
                 console.log(chalk.greenBright.bold(`=====================================================================================================`));
                 console.log(chalk.redBright.bold(`=====================================================================================================`));
                 console.log(chalk.redBright.bold(`The employee you chose is invalid, please try again!`));
