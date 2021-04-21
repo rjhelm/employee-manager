@@ -61,7 +61,7 @@ const promptUser = () => {
         }
         if (choices === 'View Employees By Department') {
             employees
-            ByDepartment();
+            employeesByDepartment();
         }
         // if (choices === 'View Employees By Manager') {
         //     employeeByManager();
@@ -516,7 +516,7 @@ const updateManager = () => {
     // FUNCTIONS TO REMOVE INFORMATION //
     // remove an employee //
 const deleteEmployee = () => {
-    let sql = `SELECT employee.id, employee.first_name, employee.last_name, FROM employee`;
+    let sql = `SELECT employee.id, employee.first_name, employee.last_name FROM employee`;
     connection.query(sql, (err, res) => {
         if (err) throw err;
         let employeeArray = [];
@@ -528,7 +528,7 @@ const deleteEmployee = () => {
                 message: 'Please select the employee that you would like to remove:',
                 choices: employeeArray
             }
-        ]).then((answer) =>{
+        ]).then((answer) => {
             let employeeId;
             res.forEach((employee) => {
                 if (answer.selectEmployee === `${employee.first_name} ${employee.last_name}`) {
@@ -536,7 +536,7 @@ const deleteEmployee = () => {
                 }
             });
             let sql = `DELETE FROM employee WHERE employee.id = ?`;
-            connection.query(sql, (err, res) => {
+            connection.query(sql, [employeeId], (err) => {
                 if (err) throw err;
                 console.log(chalk.greenBright.bold(`=====================================================================================================`));
                 console.log(chalk.redBright.bold(`=====================================================================================================`));
@@ -565,12 +565,12 @@ const deleteEmployee = () => {
                 }
             ]).then((answer) => {
                 let roleId;
-                response.forEach((role) => {
+                res.forEach((role) => {
                 if (answer.selectRole === role.title) {
                     roleId = role.id;
                 }
             });
-                let sql = `DELETE FROM role WHERE role.id = ?`;
+                let sql =   `DELETE FROM role WHERE role.id = ?`;
                 connection.query(sql, [roleId], (err) => {
                     if (err) throw err;
                     console.log(chalk.greenBright.bold(`=====================================================================================================`));
@@ -606,7 +606,7 @@ const deleteDepartment = () => {
                 departmentId = department.id;
             }
         });
-            let sql = `DELETE FROM department WHERE department.id`;
+            let sql = `DELETE FROM department WHERE department.id = ?`;
             connection.query(sql, [departmentId], (err) => {
                 if (err) throw err;
                 console.log(chalk.greenBright.bold(`=====================================================================================================`));
