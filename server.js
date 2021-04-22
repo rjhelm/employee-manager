@@ -1,9 +1,9 @@
 const inquirer = require('inquirer');
 const table = require('console.table');
-const connection = require('./assets/connection.js');
+const connection = require('./config/connection.js');
 const figlet = require('figlet');
 const chalk = require('chalk');
-const validate = require('./assets/validate');
+const validate = require('./config/validate');
 // const { registerPrompt } = require('inquirer');
 
 
@@ -102,22 +102,22 @@ const promptUser = () => {
 // FUNCTIONS FOR VIEWING INFORMATION //
 
     // View all employees //
-const viewEmployees = () => {
-    let sql =       `SELECT employee.id, 
-                  employee.first_name, 
-                  employee.last_name, 
-                  role.title, 
-                  department.department_name AS 'department', 
-                  role.salary
-                  FROM employee, role, department 
-                  WHERE department.id = role.department_id 
-                  AND role.id = employee.role_id
-                  ORDER BY employee.id ASC`;
-    connection.query(sql, (err, res) => {
-        if (err) throw err;
+    const viewEmployees = () => {
+        let sql =       `SELECT employee.id, 
+                        employee.first_name, 
+                        employee.last_name, 
+                        role.title, 
+                        department.department_name AS 'department', 
+                        role.salary
+                        FROM employee, role, department 
+                        WHERE department.id = role.department_id 
+                        AND role.id = employee.role_id
+                        ORDER BY employee.id ASC`;
+        connection.query(sql, (err, res) => {
+          if (err) throw err;
         console.log(chalk.greenBright.bold(`=====================================================================================================`));
         console.log(chalk.redBright.bold(`=====================================================================================================`));
-        console.log(`                                               ` + chalk.blueBright.bold(`ALL Employees`));
+        console.log(`                                          ` + chalk.blueBright.bold(`ALL Employees`));
         console.log(chalk.redBright.bold(`=====================================================================================================`));
         console.table(res);
         console.log(chalk.redBright.bold(`=====================================================================================================`));
@@ -165,25 +165,25 @@ const viewDepartments = () => {
 }
 
     // View employees based on department //
-const employeesByDepartment = () => {
-    let sql = `SELECT employee.first_name, 
-    employee.last_name, 
-    department.department_name AS department
-    FROM employee 
-    LEFT JOIN role ON employee.role_id = role.id 
-    LEFT JOIN department ON role.department_id = department.id`;
-    connection.query(sql, (err, res) => {
-        if (err) throw err;
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        console.log(chalk.redBright.bold(`=====================================================================================================`));
-        console.log(`                       ` + chalk.blueBright.bold(`Employees by Department:`));
-        console.log(chalk.redBright.bold(`=====================================================================================================`));
-        console.table(res);
-        console.log(chalk.redBright.bold(`=====================================================================================================`));
-        console.log(chalk.greenBright.bold(`=====================================================================================================`));
-        promptUser();
-    });
-}
+    const employeesByDepartment = () => {
+        let  sql =     `SELECT employee.first_name, 
+                        employee.last_name, 
+                        department.department_name AS department
+                        FROM employee 
+                        LEFT JOIN role ON employee.role_id = role.id 
+                        LEFT JOIN department ON role.department_id = department.id`;
+        connection.query(sql, (err, res) => {
+          if (err) throw err;
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            console.log(chalk.redBright.bold(`=====================================================================================================`));
+            console.log(`                              ` + chalk.blueBright.bold(`Employees by Department:`));
+            console.log(chalk.redBright.bold(`=====================================================================================================`));
+            console.table(res);
+            console.log(chalk.redBright.bold(`=====================================================================================================`));
+            console.log(chalk.greenBright.bold(`=====================================================================================================`));
+            promptUser();
+          });
+      };
 
     // View Employees based on manager //
 // const employeeByManager = () => {
@@ -228,6 +228,7 @@ const employeesByDepartment = () => {
 //                             });
 //                         });
 // }
+
 
     // View department budget //
 const viewBudget = () => {

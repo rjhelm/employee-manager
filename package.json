@@ -2,9 +2,13 @@
   "name": "employee-manager",
   "version": "1.0.0",
   "description": "Employee Management app that runs out of the command line",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "mysql db/employees.db < db/schema.sql",
+    "seed": "mysql db/employees.db < db/seeds.sql",
+    "db": "mysql db/employees.db",
+    "watch": "nodemon server.js",
     "start": "node server.js"
   },
   "repository": {
@@ -23,7 +27,6 @@
     "dotenv": "^8.2.0",
     "figlet": "^1.5.0",
     "inquirer": "^8.0.0",
-    "mysql": "^2.18.1",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
     "validator": "^13.5.2"
