@@ -1,18 +1,12 @@
-/* Create Database */
 DROP DATABASE IF EXISTS employees;
 CREATE DATABASE employees;
 USE employees;
 
-/* Employee Table */
-CREATE TABLE employee(
+CREATE TABLE department (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    first_name VARCHAR(30) NOT NULL,
-    last_name VARCHAR(30) NOT NULL,
-    role_id INTEGER,
-    manager_id INTEGER
+    department_name VARCHAR(30) NOT NULL
 );
 
-/* Role Table */
 CREATE TABLE role (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
@@ -20,8 +14,10 @@ CREATE TABLE role (
     department_id INTEGER
 );
 
-/* Department Table */
-CREATE TABLE department (
+CREATE TABLE employee(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    department_name VARCHAR(30) NOT NULL
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
+    role_id INTEGER,
+    manager_id INTEGER
 );
